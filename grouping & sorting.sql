@@ -56,11 +56,11 @@ FROM
 		END AS
         	seller_type
 	FROM
-    	sellers
-	WHERE 
-    	category != 'Bedding'
-	GROUP BY 
-    	seller_id) AS t1
+		sellers
+	WHERE
+		category != 'Bedding'
+	GROUP BY
+		seller_id) AS t1
 WHERE
 	seller_type is not NULL
 ORDER BY
