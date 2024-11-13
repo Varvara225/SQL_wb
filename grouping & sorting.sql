@@ -36,7 +36,7 @@ FROM
 WHERE
 	name ILIKE '%hair%'
 	OR name ILIKE '%home%'
-group BY
+GROUP BY
 	category;
 
 -- ЧАСТЬ 2
@@ -45,21 +45,21 @@ group BY
 SELECT
 	*
 FROM
-	(select
+	(SELECT
 		seller_id,
 		count(category) AS total_categ,
 		sum(revenue) AS total_revenue,
 		avg(rating) AS avg_rating,
 		CASE
-            WHEN count(category) > 1 AND sum(revenue) > 50000 THEN 'rich'
-            WHEN count(category) > 1 AND sum(revenue) < 50000 THEN 'poor'
+			WHEN count(category) > 1 AND sum(revenue) > 50000 THEN 'rich'
+			WHEN count(category) > 1 AND sum(revenue) < 50000 THEN 'poor'
 		END AS
         	seller_type
 	FROM
     	sellers
-    WHERE 
+	WHERE 
     	category != 'Bedding'
-    GROUP BY 
+	GROUP BY 
     	seller_id) AS t1
 WHERE
 	seller_type is not NULL
