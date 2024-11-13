@@ -45,15 +45,15 @@ group BY
 SELECT
 	*
 FROM
-    (SELECT
-        seller_id,
-        count(category) AS total_categ,
-        sum(revenue) AS total_revenue,
-        avg(rating) AS avg_rating,
-        CASE
+	(select
+		seller_id,
+		count(category) AS total_categ,
+		sum(revenue) AS total_revenue,
+		avg(rating) AS avg_rating,
+		CASE
             WHEN count(category) > 1 AND sum(revenue) > 50000 THEN 'rich'
             WHEN count(category) > 1 AND sum(revenue) < 50000 THEN 'poor'
-        END AS
+		END AS
         	seller_type
 	FROM
     	sellers
@@ -68,12 +68,12 @@ ORDER BY
 	
 
 -- 2 (под продавцом я понимаю тут уникальный seller_id)
-SELECT 
-    seller_id,
-    -- привожу date_reg к типу date
-    EXTRACT(YEAR FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) * 12 + 
-    EXTRACT(MONTH FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) AS month_from_registration,
-    (SELECT max(delivery_days) - min(delivery_days) AS max_delivery_difference FROM sellers)
+SELECT
+	seller_id,
+	-- привожу date_reg к типу date
+	EXTRACT(YEAR FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) * 12 + 
+	EXTRACT(MONTH FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) AS month_from_registration,
+	(SELECT max(delivery_days) - min(delivery_days) AS max_delivery_difference FROM sellers)
 FROM
 	sellers
 WHERE
