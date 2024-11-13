@@ -1,102 +1,103 @@
 -- ЧАСТЬ 1
 
 -- 1.1 (в полных годах)
-select
-	city, age, COUNT(id) as customer_count
-from
+SELECT
+	city, age, count(id) AS customer_count
+FROM
 	users
-group by
+GROUP BY
 	city, age
-order by
-	customer_count desc;
+ORDER BY
+	customer_count DESC;
 
 -- 1.2 (в возрастных категориях)
-select
+SELECT
 	city,
-	COUNT(id) as customer_count,
-	case 
-		when age between 0 and 20 then 'young'
-		when age between 21 and 49 then 'adult'
-		else 'old'
-	end as
+	count(id) AS customer_count,
+	CASE 
+		WHEN age BETWEEN 0 AND 20 THEN 'young'
+		WHEN age BETWEEN 21 AND 49 THEN 'adult'
+		ELSE 'old'
+	END AS
 		age_category
-from
+FROM
 	users
-group by
+GROUP BY
 	city, age_category
-order by
-	customer_count desc;
+ORDER BY
+	customer_count DESC;
 
 -- 2
-select
+SELECT
 	category,
-	round(avg(price),2) as avg_price
-from
+	round(avg(price),2) AS avg_price
+FROM
 	products
-where
-	name ilike '%hair%'
-	or name ilike '%home%'
-group by
+WHERE
+	name ILIKE '%hair%'
+	OR name ILIKE '%home%'
+group BY
 	category;
 
 -- ЧАСТЬ 2
 
 -- 1 (без вывода продавцов-ноунеймов (которые ни rich, ни poor))
-select *
-from
-    (select
+SELECT
+	*
+FROM
+    (SELECT
         seller_id,
-        count(category) as total_categ,
-        sum(revenue) as total_revenue,
-        avg(rating) as avg_rating,
-        case
-            when count(category) > 1 and sum(revenue) > 50000 then 'rich'
-            when count(category) > 1 and sum(revenue) < 50000 then 'poor'
-        end as
-        	seller_type 
-    from 
+        count(category) AS total_categ,
+        sum(revenue) AS total_revenue,
+        avg(rating) AS avg_rating,
+        CASE
+            WHEN count(category) > 1 AND sum(revenue) > 50000 THEN 'rich'
+            WHEN count(category) > 1 AND sum(revenue) < 50000 THEN 'poor'
+        END AS
+        	seller_type
+	FROM
     	sellers
-    where 
+    WHERE 
     	category != 'Bedding'
-    group by 
-    	seller_id) as t1
-where
-	seller_type is not null
-order by
-	seller_id asc;
+    GROUP BY 
+    	seller_id) AS t1
+WHERE
+	seller_type is not NULL
+ORDER BY
+	seller_id ASC;
 	
 
 -- 2 (под продавцом я понимаю тут уникальный seller_id)
-select 
+SELECT 
     seller_id,
     -- привожу date_reg к типу date
-    extract(year from age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) * 12 + 
-    extract(month from age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) as month_from_registration,
-    (select max(delivery_days) - min(delivery_days) as max_delivery_difference from sellers)
-from 
+    EXTRACT(YEAR FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) * 12 + 
+    EXTRACT(MONTH FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) AS month_from_registration,
+    (SELECT max(delivery_days) - min(delivery_days) AS max_delivery_difference FROM sellers)
+FROM 
     sellers
-where 
-    category != 'Bedding'
-group by 
-    seller_id
-having
+WHERE
+	category != 'Bedding'
+GROUP BY
+	seller_id
+HAVING
 	-- poor продавцы
-    count(category) > 1
-    and sum(revenue) < 50000
-order by
-	seller_id asc;
+	count(category) > 1
+	AND sum(revenue) < 50000
+ORDER BY
+	seller_id ASC;
   
   -- 3 (за дату регистрации принимаю самую раннюю дату)
-select
+SELECT
 	seller_id,
-   	string_agg(category, '-' ORDER BY category asc) as category_pair
-from
+   	string_agg(category, '-' ORDER BY category ASC) AS category_pair
+FROM
  	sellers
-group by
+GROUP BY
  	seller_id
-having
- 	extract(year from min(to_date(date_reg, 'DD-MM-YYYY'))) = 2022
- 	and count(category) = 2
- 	and sum(revenue) > 75000;
+HAVING
+ 	EXTRACT(YEAR FROM min(to_date(date_reg, 'DD-MM-YYYY'))) = 2022
+ 	AND count(category) = 2
+ 	AND sum(revenue) > 75000;
    
 
