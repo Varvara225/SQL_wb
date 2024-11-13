@@ -74,8 +74,8 @@ SELECT
     EXTRACT(YEAR FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) * 12 + 
     EXTRACT(MONTH FROM age(current_date, min(to_date(date_reg, 'DD-MM-YYYY')))) AS month_from_registration,
     (SELECT max(delivery_days) - min(delivery_days) AS max_delivery_difference FROM sellers)
-FROM 
-    sellers
+FROM
+	sellers
 WHERE
 	category != 'Bedding'
 GROUP BY
