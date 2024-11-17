@@ -74,7 +74,7 @@ order by
 -- 2
 select
 	p.product_category,
- 	SUM(o.order_ammount) as total_sales,
+ 	sum(o.order_ammount) as total_sales,
  	-- категория с наибольшей суммой продаж
  	(
 	 	select
