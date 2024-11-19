@@ -45,22 +45,24 @@ group by
 select
 	*
 from
-	(select
-		seller_id,
-		count(category) as total_categ,
-		sum(revenue) as total_revenue,
-		avg(rating) as avg_rating,
-		case
-			when count(category) > 1 and sum(revenue) > 50000 then 'rich'
-			when count(category) > 1 and sum(revenue) < 50000 then 'poor'
-		end as
-        	seller_type
-	from
-		sellers
-	where
-		category != 'Bedding'
-	group by
-		seller_id) as t1
+	(
+		select
+			seller_id,
+			count(category) as total_categ,
+			sum(revenue) as total_revenue,
+			avg(rating) as avg_rating,
+			case
+				when count(category) > 1 and sum(revenue) > 50000 then 'rich'
+				when count(category) > 1 and sum(revenue) < 50000 then 'poor'
+			end as
+	        	seller_type
+		from
+			sellers
+		where
+			category != 'Bedding'
+		group by
+			seller_id
+	) as t1
 where
 	seller_type is not null
 order BY
