@@ -90,7 +90,7 @@ select
 	seller_id,
 	extract (year from age(current_date, min(date_reg))) * 12 + 
 	extract (month from age(current_date, min(date_reg))) as month_from_registration,
-	(select max(delivery_days) - min(delivery_days) AS delivery_days_difference from PoorSellers)
+	(select max(delivery_days) - min(delivery_days) as delivery_days_difference from PoorSellers)
 from
 	PoorSellers
 where
