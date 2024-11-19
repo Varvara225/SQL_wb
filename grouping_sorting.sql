@@ -8,7 +8,7 @@ from
 group by
 	city, age
 order by
-	city, customer_count desc;
+	customer_count desc;
 
 -- 1.2 (в возрастных категориях)
 select
