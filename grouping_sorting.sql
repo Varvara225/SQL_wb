@@ -55,7 +55,7 @@ from
 				when count(category) > 1 and sum(revenue) > 50000 then 'rich'
 				when count(category) > 1 and sum(revenue) < 50000 then 'poor'
 			end as
-	        	seller_type
+				seller_type
 		from
 			sellers
 		where
