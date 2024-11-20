@@ -50,8 +50,8 @@ select
 	sh."SHOPNUMBER",
 	sh."CITY",
 	sh."ADDRESS",
-	"SUM_QTY",
-	"SUM_QTY_PRICE"
+	t2."SUM_QTY",
+	t2."SUM_QTY_PRICE"
 from
 	(
 		select distinct
