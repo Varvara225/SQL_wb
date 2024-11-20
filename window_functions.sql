@@ -14,11 +14,11 @@ window w
 	as (partition by industry order by salary desc rows between unbounded preceding and unbounded following);
 
 -- 1.2 (без оконных + max/min)
-select 
-    s.first_name,
-    s.last_name,
-    s.salary,
-    s.industry,
+select
+	s.first_name,
+	s.last_name,
+	s.salary,
+	s.industry,
     (
 	    select
 	    	first_name 
@@ -140,9 +140,9 @@ order by
 with SalesData as (
 	select
 		s."DATE",
-	    s."SHOPNUMBER",
-	    g."CATEGORY",
-	    sum((s."QTY" * g."PRICE")) AS total_sales
+		s."SHOPNUMBER",
+		g."CATEGORY",
+		sum((s."QTY" * g."PRICE")) AS total_sales
 	from
 		sales s
 	left join
@@ -156,15 +156,15 @@ with SalesData as (
 		s."SHOPNUMBER",
 		g."CATEGORY"
 )
-select 
-    "DATE"::date as "DATE_",
-    "SHOPNUMBER",
-    "CATEGORY",
+select
+	"DATE"::date as "DATE_",
+	"SHOPNUMBER",
+	"CATEGORY",
     sum(total_sales) over (partition by "SHOPNUMBER", "CATEGORY" order by "DATE" rows between 1 preceding and 1 preceding) as "PREV_SALES"
-from 
-    SalesData
-order by 
-    "DATE_", "SHOPNUMBER", "CATEGORY";
+from
+	SalesData
+order by
+	"DATE_", "SHOPNUMBER", "CATEGORY";
    
    -- ЧАСТЬ 3
    
