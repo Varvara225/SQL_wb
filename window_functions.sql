@@ -19,26 +19,26 @@ select
 	s.last_name,
 	s.salary,
 	s.industry,
-    (
-	    select
-	    	first_name 
-	     from
-	     	salary 
-	     where
-	     	industry = s.industry
-	     	and salary = (select max(salary) from salary where industry = s.industry)
-     ) as name_highest_sal,
-     (
-	     select
-	    	first_name 
-	     from
-	     	salary 
-	     where
-	     	industry = s.industry
-	     	and salary = (select min(salary) from salary where industry = s.industry)
-     ) as name_lowest_sal
-from 
-    salary s
+	(
+		select
+			first_name
+	    from
+	    	salary
+	    where
+	    	industry = s.industry
+	    	and salary = (select max(salary) from salary where industry = s.industry)
+	) as name_highest_sal,
+	(
+		select
+			first_name
+		from
+			salary
+		where
+			industry = s.industry
+			and salary = (select min(salary) from salary where industry = s.industry)
+	) as name_lowest_sal
+from
+	salary s
 order by
 	industry;
 
