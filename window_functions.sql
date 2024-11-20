@@ -22,11 +22,11 @@ select
 	(
 		select
 			first_name
-	    	from
-	    		salary
-	    	where
-	    		industry = s.industry
-	    		and salary = (select max(salary) from salary where industry = s.industry)
+		from
+			salary
+		where
+			industry = s.industry
+			and salary = (select max(salary) from salary where industry = s.industry)
 	) as name_highest_sal,
 	(
 		select
