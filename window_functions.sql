@@ -211,13 +211,15 @@ insert into query (year, month, day, userid, ts, devicetype, deviceid, query) va
 alter table
 	query
 add column
+	next_query varchar,
+add column
 	is_final int;
 
 with RankedQueries as (
 	select
 		*,
 		lead(ts) over (partition by userid, deviceid order by ts) as next_ts,
-		lead(query) over (partition by userid order by ts) as next_query
+		lead(query) over (partition by userid order by ts) as next_query_value
 	from
 		query
 ), FinalValues as (
@@ -226,7 +228,7 @@ with RankedQueries as (
 		case
 			when next_ts is null then 1
 			when next_ts - ts > 180 then 1
-			when length(next_query) < length(query) and next_ts - ts > 60 then 2
+			when length(next_query_value) < length(query) and next_ts - ts > 60 then 2
 			else 0
 		end as is_final_value
 	from
@@ -235,7 +237,8 @@ with RankedQueries as (
 update
 	query
 set
-	is_final = FinalValues.is_final_value
+	is_final = FinalValues.is_final_value,
+	next_query = FinalValues.next_query_value
 from
 	FinalValues
 where
