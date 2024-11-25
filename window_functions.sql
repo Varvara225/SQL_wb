@@ -137,6 +137,7 @@ order by
 	t1."SHOPNUMBER"
 
 -- 4
+
 with SalesData as (
 	select
 		s."DATE",
@@ -160,7 +161,7 @@ select
 	"DATE"::date as "DATE_",
 	"SHOPNUMBER",
 	"CATEGORY",
-    sum(total_sales) over (partition by "SHOPNUMBER", "CATEGORY" order by "DATE" rows between 1 preceding and 1 preceding) as "PREV_SALES"
+	lag(total_sales, 1) over (partition by "SHOPNUMBER", "CATEGORY" order by "DATE") as "PREV_SALES"
 from
 	SalesData
 order by
@@ -170,5 +171,67 @@ order by
    
    -- 3.1
 
+create table if not exists query (
+    searchid SERIAL primary key,
+    year int,
+    month int,
+    day int,
+    userid int,
+    ts bigint,
+    devicetype varchar(20),
+    deviceid varchar(50),
+    query varchar(255)
+);
 
+insert into query (year, month, day, userid, ts, devicetype, deviceid, query) values
+(2023, 1, 1, 101, 1672537600, 'mobile', 'device_001', 'к'),
+(2023, 1, 1, 101, 1672537660, 'android', 'device_001', 'ку'),
+(2023, 1, 1, 101, 1672537720, 'mobile', 'device_001', 'куп'),
+(2023, 1, 1, 101, 1672537780, 'mobile', 'device_001', 'купить'),
+(2023, 1, 1, 101, 1672537840, 'mobile', 'device_001', 'купить кур'),
+(2023, 1, 1, 101, 1672537900, 'mobile', 'device_001', 'купить куртку'),
+(2023, 1, 2, 102, 1672624000, 'android', 'device_002', 'телефон'),
+(2023, 1, 2, 102, 1672624060, 'android', 'device_002', 'смартфон'),
+(2023, 1, 2, 102, 1672624120, 'android', 'device_002', 'смартфон Samsung'),
+(2023, 1, 2, 102, 1672624180, 'android', 'device_002', 'смартфон Samsung Galaxy'),
+(2023, 1, 3, 103, 1672710400, 'tablet', 'device_003', 'ноутбук'),
+(2023, 1, 3, 103, 1672710460, 'tablet', 'device_003', 'ноутбук Acer'),
+(2023, 1, 3, 103, 1672710520, 'tablet', 'device_003', 'ноутбук Acer Aspire'),
+(2023, 1, 4, 104, 1672796800, 'mobile', 'device_004', 'кроссовки'),
+(2023, 1, 4, 104, 1672796860, 'android', 'device_004', 'кроссовки Nike'),
+(2023, 1, 4, 104, 1672796920, 'mobile', 'device_004', 'кроссовки Adidas'),
+(2023, 1, 5, 105, 1672883200, 'desktop', 'device_005', 'часы'),
+(2023, 1, 5, 105, 1672883260, 'desktop', 'device_005', 'умные часы'),
+(2023, 1, 5, 105, 1672883320, 'desktop', 'device_005', 'умные часы Apple'),
+(2023, 1, 6, 106, 1672969600, 'tablet', 'device_006', 'игровая приставка'),
+(2023, 1, 6, 106, 1672969660, 'tablet', 'device_006', 'игровая приставка PlayStation'),
+(2023, 1, 6, 106, 1672969720, 'tablet', 'device_006', 'игровая приставка Xbox');
+
+alter table query
+add column is_final int;
+
+with ranked_queries as (
+    select *,
+           lead(ts) over (partition by userid, deviceid order by ts) as next_ts,
+           lead(query) over (partition by userid order by ts) as next_query
+    from query
+), final_values as (
+    select *,
+           case 
+               when next_ts is null then 1
+               when next_ts - ts > 180 then 1
+               when length(next_query) < length(query) and next_ts - ts > 60 then 2
+               else 0
+           end as is_final_value
+    from ranked_queries
+)
+update query
+set is_final = final_values.is_final_value
+from final_values
+where query.searchid = final_values.searchid;
+
+select
+	*
+from
+	query
 	
