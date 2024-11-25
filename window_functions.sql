@@ -38,7 +38,7 @@ select
 			and salary = (select min(salary) from salary where industry = s.industry)
 	) as name_lowest_sal
 from
-	salary s
+	salary as s
 order by
 	industry;
 
@@ -47,7 +47,7 @@ order by
 -- 1
 
 select
-	sh."SHOPNUMBER",
+	t2."SHOPNUMBER",
 	sh."CITY",
 	sh."ADDRESS",
 	t2."SUM_QTY",
@@ -145,11 +145,11 @@ with SalesData as (
 		g."CATEGORY",
 		sum((s."QTY" * g."PRICE")) AS total_sales
 	from
-		sales s
+		sales as s
 	left join
-		shops sh on s."SHOPNUMBER" = sh."SHOPNUMBER"
+		shops as sh on s."SHOPNUMBER" = sh."SHOPNUMBER"
 	left join
-		goods g on s."ID_GOOD" = g."ID_GOOD" 
+		goods as g on s."ID_GOOD" = g."ID_GOOD" 
 	where
 		sh."CITY" = 'СПб'
 	group by
@@ -170,6 +170,7 @@ order by
    -- ЧАСТЬ 3
    
    -- 3.1
+drop table if exists query;
 
 create table if not exists query (
     searchid SERIAL primary key,
@@ -178,14 +179,14 @@ create table if not exists query (
     day int,
     userid int,
     ts bigint,
-    devicetype varchar(20),
-    deviceid varchar(50),
-    query varchar(255)
+    devicetype varchar,
+    deviceid varchar,
+    query varchar
 );
 
 insert into query (year, month, day, userid, ts, devicetype, deviceid, query) values
-(2023, 1, 1, 101, 1672537600, 'mobile', 'device_001', 'к'),
-(2023, 1, 1, 101, 1672537660, 'android', 'device_001', 'ку'),
+(2023, 1, 1, 101, 1672537600, 'mobile', 'device_001', 'ку'),
+(2023, 1, 1, 101, 1672537670, 'android', 'device_001', 'к'),
 (2023, 1, 1, 101, 1672537720, 'mobile', 'device_001', 'куп'),
 (2023, 1, 1, 101, 1672537780, 'mobile', 'device_001', 'купить'),
 (2023, 1, 1, 101, 1672537840, 'mobile', 'device_001', 'купить кур'),
@@ -207,31 +208,36 @@ insert into query (year, month, day, userid, ts, devicetype, deviceid, query) va
 (2023, 1, 6, 106, 1672969660, 'tablet', 'device_006', 'игровая приставка PlayStation'),
 (2023, 1, 6, 106, 1672969720, 'tablet', 'device_006', 'игровая приставка Xbox');
 
-alter table query
-add column is_final int;
-
-with ranked_queries as (
-    select *,
-           lead(ts) over (partition by userid, deviceid order by ts) as next_ts,
-           lead(query) over (partition by userid order by ts) as next_query
-    from query
-), final_values as (
-    select *,
-           case 
-               when next_ts is null then 1
-               when next_ts - ts > 180 then 1
-               when length(next_query) < length(query) and next_ts - ts > 60 then 2
-               else 0
-           end as is_final_value
-    from ranked_queries
-)
-update query
-set is_final = final_values.is_final_value
-from final_values
-where query.searchid = final_values.searchid;
-
-select
-	*
-from
+alter table
 	query
+add column
+	is_final int;
+
+with RankedQueries as (
+	select
+    	*,
+    	lead(ts) over (partition by userid, deviceid order by ts) as next_ts,
+    	lead(query) over (partition by userid order by ts) as next_query
+	from
+		query
+), FinalValues as (
+	select
+		*,
+		case
+			when next_ts is null then 1
+	    	when next_ts - ts > 180 then 1
+	    	when length(next_query) < length(query) and next_ts - ts > 60 then 2
+	    	else 0
+	    end as is_final_value
+    from
+    	RankedQueries
+)
+update
+	query
+set
+	is_final = FinalValues.is_final_value
+from
+	FinalValues
+where
+	query.searchid = FinalValues.searchid;
 	
