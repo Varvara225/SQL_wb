@@ -166,10 +166,11 @@ from
 	SalesData
 order by
 	"DATE_", "SHOPNUMBER", "CATEGORY";
+
+-- ЧАСТЬ 3
    
-   -- ЧАСТЬ 3
-   
-   -- 3.1
+-- 1
+
 drop table if exists query;
 
 create table if not exists query (
